@@ -115,7 +115,7 @@ public boolean add(E e){
     return true;
 }
 
-	/*
+	/**
 	 * 在此列表中的指定位置插入指定的元素
 	 * 先调用rangeCheckForAdd对index进行界限检查;然后调用ensureCapacityInternal方法保证capacity足够大;
 	 * 再将从index开始之后的所有成员后移一个位置;将element插入index位置;最后size加1
@@ -158,6 +158,50 @@ public boolean add(E e){
 	private void ensureExpliciCapacity(int minCapacity){
         modCount++;
         //如果最小扩容量大于现已存在的数组容量，则需要进行扩容
+        if (minCapacity - elementData.length > 0)
+            //调用grow方法进行扩容,调用此方法代表已经开始扩容了
+            grow(minCapacity);
     }
 ```
+
+`ArrayList`扩容的核心方法`grow`：
+
+```java
+	/**
+	 * 要分配的最大数组大小
+	 */
+	private static inal int MAX_ARRAY_SIZE = Integer.Max_VALUE - 8;
+
+	/**
+	 * ArrayList扩容的核心方法。
+	 */
+	private void grow(int minCapacity){
+        //oldCapacity为旧容量,newCapacity为新容量
+        int oldCapacity = elementData.length;
+        //将oldCapacity右移一位,其效果相当于oldCapacity
+        //我们知道位运算的速度远远快于整除运算,整句运算式的结果就是将新容量更新为旧容量的1.5倍
+        int newCapacity = oldCapacity + (oldCapacity >> 1);
+        //再判断一下新数组的容量够不够,够了就直接使用这个长度创建新数组 若还是小于最小需要容量,那么就把最小需要容量当作数组的新容量
+        if (newCapacity - minCapacity < 0)
+            newCapacity = minCapacity;
+        //再检查新容量是否超出了ArrayList所定义的最大容量
+        //若超出了,则调用hugeCapacity()来比较minCapacity和 MAX_ARRAY_SIZE,如果minCapacity大于MAX_ARRAY_SIZE,则新容量则为Interger.MAX_VALUE,否则,新容量大小则为 MAX_ARRAY_SIZE
+        if (newCapacity - MAX_ARRAY_SIZE > 0)
+            newCapacity = hugeCapacity(minCapacity);
+        //调用Arrays.copyOf方法将elementData数组指向新的内存空间(newCapacity的连续空间),并将elementData的数据复制到新的内存空间
+        elementData = Arrays.copyOf(elementData, newCapacity);
+    }
+		//比较 minCapacity 和 MAX_ARRAY_SIZE
+        private static int hugeCapacity(int minCapacity) {
+            if (minCapacity < 0) // overflow
+                throw new OutOfMemoryError();
+            return (minCapacity > MAX_ARRAY_SIZE) ?
+                Integer.MAX_VALUE :
+                MAX_ARRAY_SIZE;
+        }
+```
+
+从 `grow` 方法中我们可以清晰的看出其实 **`ArrayList `扩容的本质就是计算出新的扩容数组的 `size` 后实例化，并将原有数组内容复制到新数组中去。**
+
+### Ⅱ 使用 ensureCapacity 提高添加速度
 
