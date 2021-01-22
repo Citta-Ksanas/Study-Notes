@@ -1,4 +1,4 @@
-# :sparkles:ArrayList源码分析
+# ⭐ArrayList源码分析
 
 ---
 
@@ -109,7 +109,51 @@ public class ArrayList<E> extends AbstractList<E>
 	 */
 public boolean add(E e){
     //扩容
-    ensureCapacityInternal(size + 1);
+    ensureCapacityInternal(size + 1);//Increments modCount!! 变量记录着集合的修改次数 按照元素个数+1,确认数组容量是否够用
+    elementData[size++] = e;
+    //这里看到ArrayList添加元素的实质就相当于为数组赋值
+    return true;
 }
+
+	/*
+	 * 在此列表中的指定位置插入指定的元素
+	 * 先调用rangeCheckForAdd对index进行界限检查;然后调用ensureCapacityInternal方法保证capacity足够大;
+	 * 再将从index开始之后的所有成员后移一个位置;将element插入index位置;最后size加1
+	 */
+	public void add(int index,E element){
+        rangrCheckForAdd(index);
+        ensureCapacityInternal(size + 1);//Increments modCount！！
+        //arraycopy()实现数组之间复制的方法,下面就用到了arraycopy()方法实现数组自己复制自己 
+        System.arraycopy(elementData, index, elementData, index + 1, size-index);
+       elementData[index] = element;
+        size++;
+    }
+```
+
+`ensureCapacityInternal()`是用来**以最小容量进行扩容**的（将用户传入的参数和默认的容量进行比较，选取最大值）：
+
+```java
+	//以最小容量进行扩容
+	private void ensureCapacityInternal(int minCapacity){
+        ensureExplicitCapacity(calculateCapacity(elementData,minCapacity));
+    }
+```
+
+`calculateCapacity`用来获取最小容量`minCapacity`：
+
+```java
+	//获取最小容量
+	private static int calculateCapacity(Object[] elementData,int minCapacity){
+        if(elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA){
+            return Math.max(DEFAULT_CAPACITY,minCapacity);
+        }
+        return minCapacity;
+    }
+```
+
+`ensureExplicitCapacity`判断该`ArrayList `是否需要扩容（如果最小扩容量大于现已存在的数组容量，则需要进行扩容）：
+
+```java
+
 ```
 
