@@ -154,6 +154,10 @@ public boolean add(E e){
 `ensureExplicitCapacity`判断该`ArrayList `是否需要扩容（如果最小扩容量大于现已存在的数组容量，则需要进行扩容）：
 
 ```java
-
+	//判断是否需要扩容
+	private void ensureExpliciCapacity(int minCapacity){
+        modCount++;
+        //如果最小扩容量大于现已存在的数组容量，则需要进行扩容
+    }
 ```
 
